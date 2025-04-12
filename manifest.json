@@ -1,11 +1,12 @@
+// manifest.json
 {
-  "name": "تسجيل الصوت وتحويله إلى نص",
-  "short_name": "تسجيل الصوت",
-  "description": "تطبيق ويب لتسجيل الصوت وتحويله إلى نص باللغة العربية.",
-  "start_url": "index.html",
+  "name": "دائرة عقارات الدولة - تحويل الصوت",
+  "short_name": "تحويل الصوت",
+  "description": "نظام تحويل الصوت إلى نص الرسمي التابع لدائرة عقارات الدولة",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#f0f8ff",
-  "theme_color": "#2c3e50",
+  "background_color": "#f8f9fa",
+  "theme_color": "#2980b9",
   "icons": [
     {
       "src": "icon-192.png",
