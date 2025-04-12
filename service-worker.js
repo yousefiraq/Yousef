@@ -1,10 +1,12 @@
+// service-worker.js
 self.addEventListener("install", (event) => {
-    console.log("Service Worker installed");
     event.waitUntil(
-        caches.open("static").then((cache) => {
+        caches.open("static-v2").then((cache) => {
             return cache.addAll([
+                "/",
                 "index.html",
                 "manifest.json",
+                "logo.png",
                 "icon-192.png",
                 "icon-512.png"
             ]);
