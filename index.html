@@ -3,81 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الصوت وتحويله إلى نص</title>
+    <title>دائرة عقارات الدولة - تحويل الصوت إلى نص</title>
     <link rel="manifest" href="manifest.json">
-    <script>
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("service-worker.js")
-          .then(() => console.log("Service Worker Registered"))
-          .catch((err) => console.log("Service Worker Registration Failed", err));
-      }
-    </script>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             direction: rtl;
-            background-color: #f0f8ff;
-            color: #333;
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+            color: #2d3436;
             text-align: center;
             padding: 20px;
+            min-height: 100vh;
         }
 
         h1 {
             color: #2c3e50;
+            border-bottom: 3px solid #2980b9;
+            padding-bottom: 10px;
+            display: inline-block;
+            margin: 20px 0;
         }
 
         button {
-            padding: 10px 20px;
-            font-size: 16px;
-            margin: 10px;
+            padding: 12px 25px;
+            font-size: 18px;
+            margin: 15px;
             cursor: pointer;
-            border-radius: 20px;
-            border: none;
-            transition: background-color 0.3s;
+            border-radius: 25px;
+            border: 2px solid !important;
+            transition: transform 0.2s;
+            background-color: #2980b9 !important;
+            color: white !important;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
         }
 
-        #startBtn {
-            background-color: #27ae60;
-            color: white;
-        }
-
-        #startBtn:hover {
-            background-color: #2ecc71;
+        button:hover {
+            transform: translateY(-2px);
         }
 
         #stopBtn {
-            background-color: #e74c3c;
-            color: white;
-        }
-
-        #stopBtn:hover {
-            background-color: #c0392b;
+            background-color: #c0392b !important;
+            border-color: #922b21 !important;
         }
 
         textarea {
-            width: 100%;
+            width: 90%;
+            max-width: 800px;
             height: 200px;
-            font-size: 16px;
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #ccc;
-            resize: none;
-            margin-top: 20px;
+            font-size: 18px;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #2980b9;
+            margin: 25px auto;
+            background: white;
+            direction: rtl;
+        }
+
+        .logo {
+            width: 180px;
+            margin: 20px auto;
+            display: block;
+        }
+
+        .watermark {
+            color: #7f8c8d;
+            margin-top: 30px;
         }
     </style>
 </head>
 <body>
-
-    <h1>🎙️ تسجيل الصوت وتحويله إلى نص (يدعم اللغة العربية)</h1>
+    <img src="logo.png" alt="شعار دائرة عقارات الدولة" class="logo">
+    <h1>نظام تحويل الصوت إلى نص 📝</h1>
     
-    <button id="startBtn">ابدأ التسجيل</button>
-    <button id="stopBtn" disabled>أوقف التسجيل</button>
+    <button id="startBtn">بدء التسجيل</button>
+    <button id="stopBtn" disabled>إيقاف التسجيل</button>
     
-    <textarea id="transcription" placeholder="سيظهر النص هنا..." readonly></textarea>
+    <textarea id="transcription" placeholder="النص الم transcribed سيظهر هنا..."></textarea>
+    
+    <p class="watermark">دائرة عقارات الدولة - جميع الحقوق محفوظة © 2024</p>
 
     <script>
         let recognition;
-        let isRecording = false;
+        let finalTranscript = '';
 
         if ('webkitSpeechRecognition' in window) {
             recognition = new webkitSpeechRecognition();
@@ -85,42 +92,47 @@
             recognition.interimResults = true;
             recognition.lang = 'ar-SA';
 
-            recognition.onstart = function() {
-                isRecording = true;
-                document.getElementById('transcription').value = "🎙️ يتم التسجيل...";
+            recognition.onstart = () => {
+                document.getElementById('transcription').placeholder = "جارٍ الاستماع... تحدث الآن";
                 document.getElementById('startBtn').disabled = true;
                 document.getElementById('stopBtn').disabled = false;
             };
 
-            recognition.onresult = function(event) {
-                let transcript = '';
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
                 for (let i = 0; i < event.results.length; i++) {
-                    transcript += event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript + ' ';
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
                 }
-                document.getElementById('transcription').value = transcript;
+                document.getElementById('transcription').value = finalTranscript + interimTranscript;
             };
 
-            recognition.onerror = function(event) {
-                alert('حدث خطأ: ' + event.error);
+            recognition.onerror = (event) => {
+                alert('خطأ في النظام: ' + event.error);
             };
 
-            recognition.onend = function() {
-                isRecording = false;
+            recognition.onend = () => {
                 document.getElementById('startBtn').disabled = false;
                 document.getElementById('stopBtn').disabled = true;
+                document.getElementById('transcription').placeholder = "انتهى التسجيل";
             };
         } else {
-            alert("متصفحك لا يدعم ميزة التعرف على الكلام. يرجى استخدام متصفح كروم.");
+            alert("يرجى استخدام متصفح مدعوم مثل Google Chrome");
         }
 
-        document.getElementById('startBtn').onclick = function() {
-            recognition.start();
-        };
-
-        document.getElementById('stopBtn').onclick = function() {
-            recognition.stop();
-        };
+        document.getElementById('startBtn').onclick = () => recognition.start();
+        document.getElementById('stopBtn').onclick = () => recognition.stop();
     </script>
 
+    <script>
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("service-worker.js")
+            .then(() => console.log("Service Worker مسجل بنجاح"))
+            .catch(err => console.log("فشل تسجيل Service Worker:", err));
+        }
+    </script>
 </body>
 </html>
